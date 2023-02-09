@@ -1,4 +1,5 @@
 const asyncHandler = require("express-async-handler");
+const date = require("date-and-time");
 const TV = require("../models/TV");
 const {
   uploadImage,
@@ -39,6 +40,7 @@ const addTv = asyncHandler(async (req, res) => {
         images: {
           imageUrl: result.url,
           publicId: result.public_id,
+          colorName: tvData.imageData.imageColorName,
           isMain: true,
         },
       },
@@ -48,13 +50,56 @@ const addTv = asyncHandler(async (req, res) => {
   res.status(200).json({ msg: "Added Successfully!" });
 });
 
-//////////////////////////////-----GET TV-----//////////////////////////////
+//////////////////////////////-----GET TVs-----//////////////////////////////
 
 const getTvs = asyncHandler(async (req, res) => {
-  const tvs = await TV.find();
+  const { searchQ, page, perPage } = req.query;
+
+  const keyword = searchQ
+    ? {
+        $or: [
+          { name: { $regex: searchQ, $options: "i" } },
+          { brand: { $regex: searchQ, $options: "i" } },
+        ],
+      }
+    : {};
+
+  const limit = searchQ ? 20 : perPage;
+
+  const options = {
+    page: page || 1,
+    limit,
+  };
+
+  const tvs = await TV.paginate({ ...keyword }, options);
   if (!tvs) throw new Error("Get Tvs Request has Failed!");
 
-  res.status(200).json(tvs);
+  const paginationData = {
+    totalDocs: tvs.totalDocs,
+    limit: tvs.limit,
+    totalPages: tvs.totalPages,
+    page: tvs.page,
+    pagingCounter: tvs.pagingCounter,
+    hasPrevPage: tvs.hasPrevPage,
+    hasNextPage: tvs.hasNextPage,
+    prevPage: tvs.prevPage,
+    nextPage: tvs.nextPage,
+  };
+
+  res.status(200).json({ products: tvs.docs, paginationData });
+});
+
+//////////////////////////////-----GET TV-----//////////////////////////////
+
+const getTv = asyncHandler(async (req, res) => {
+  const { productId } = req.params;
+
+  const tv = await TV.findById(productId);
+  if (!tv) throw new Error("Get TV request has Failed!");
+
+  const newDate = date.format(new Date(tv.createdAt), "DD/MM/YYYY");
+
+  res.status(200).json({ ...tv._doc, createdAt: newDate });
 });
 
 //////////////////////////////-----UPDATE TV INFO-----//////////////////////////////
@@ -76,6 +121,28 @@ const updateTvInfo = asyncHandler(async (req, res) => {
   if (!updatedTv) throw new Error("Update tv info request has failed!");
 
   res.status(200).json({ msg: "Updated Successfully!" });
+});
+
+//////////////////////////////-----DELETE TVs-----//////////////////////////////
+
+const deleteTvs = asyncHandler(async (req, res) => {
+  const { productIds } = req.body;
+
+  const tvs = await TV.find({ _id: { $in: productIds } });
+  const imgPublicIds = tvs
+    .map((tv) => tv.images)
+    .flat()
+    .map((img) => img.publicId);
+
+  if (imgPublicIds.length > 0) {
+    const result = await removeImages(imgPublicIds);
+    if (!result) throw new Error("Remove Images Failed!");
+  }
+
+  const deletedTvs = await TV.deleteMany({ _id: { $in: productIds } });
+  if (!deletedTvs) throw new Error("Delete tvs request has failed!");
+
+  res.status(200).json({ msg: "Deleted Successfullyy!" });
 });
 
 //////////////////////////////-----DELETE TV-----//////////////////////////////
@@ -101,7 +168,7 @@ const deleteTv = asyncHandler(async (req, res) => {
 //////////////////////////////-----ADD TV SIZE-----//////////////////////////////
 
 const addTvSize = asyncHandler(async (req, res) => {
-  const { id, size, qty, price } = req.body;
+  const { id, size, qty, price, sizeId } = req.body;
 
   const tv = await TV.findById(id);
   const sizeExists = tv.sizes.some((dbSize) => dbSize.size === size);
@@ -117,26 +184,10 @@ const addTvSize = asyncHandler(async (req, res) => {
 
   await TV.updateOne({ _id: id }, { totalQty: tv.totalQty + qty });
 
-  res.status(200).json({ msg: "Updated Successfully!" });
-});
+  const editedTv = await TV.findById(id);
+  const addedSize = editedTv.sizes.pop();
 
-//////////////////////////////-----DELETE TV SIZE-----//////////////////////////////
-
-const deleteTvSize = asyncHandler(async (req, res) => {
-  const { productId, sizeId } = req.query;
-
-  const tv = await TV.findById(productId);
-  const size = tv.sizes.find((size) => size._id == sizeId);
-
-  const deletedSize = await TV.updateOne(
-    { _id: productId },
-    { $pull: { sizes: size } }
-  );
-  if (!deletedSize) throw new Error("Delete tv size request has failed!");
-
-  await TV.updateOne({ _id: productId }, { totalQty: tv.totalQty - size.qty });
-
-  res.json({ msg: "Deleted Successfully!" });
+  res.status(200).json({ msg: "Updated Successfully!", addedSize });
 });
 
 //////////////////////////////-----EDIT TV SIZE-----//////////////////////////////
@@ -168,6 +219,25 @@ const editTvSize = asyncHandler(async (req, res) => {
   res.status(200).json({ msg: "Updated Successfully!" });
 });
 
+//////////////////////////////-----DELETE TV SIZE-----//////////////////////////////
+
+const deleteTvSize = asyncHandler(async (req, res) => {
+  const { productId, sizeId } = req.query;
+
+  const tv = await TV.findById(productId);
+  const size = tv.sizes.find((size) => size._id == sizeId);
+
+  const deletedSize = await TV.updateOne(
+    { _id: productId },
+    { $pull: { sizes: size } }
+  );
+  if (!deletedSize) throw new Error("Delete tv size request has failed!");
+
+  await TV.updateOne({ _id: productId }, { totalQty: tv.totalQty - size.qty });
+
+  res.json({ msg: "Deleted Successfully!" });
+});
+
 //////////////////////////////-----ADD TV IMAGE-----//////////////////////////////
 
 const addImage = asyncHandler(async (req, res) => {
@@ -180,7 +250,15 @@ const addImage = asyncHandler(async (req, res) => {
 
   const updatedImage = await TV.updateOne(
     { _id: data.productId },
-    { $push: { images: { imageUrl: result.url, publicId: result.public_id } } }
+    {
+      $push: {
+        images: {
+          imageUrl: result.url,
+          publicId: result.public_id,
+          colorName: data.imageData.colorName,
+        },
+      },
+    }
   );
   if (!updatedImage) throw new Error("Add new image request has failed!");
 
@@ -244,6 +322,7 @@ const deleteImage = asyncHandler(async (req, res) => {
 module.exports = {
   addTv,
   getTvs,
+  getTv,
   updateTvInfo,
   addTvSize,
   deleteTvSize,
@@ -252,4 +331,5 @@ module.exports = {
   changeImageStatus,
   deleteImage,
   deleteTv,
+  deleteTvs,
 };

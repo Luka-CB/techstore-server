@@ -43,7 +43,16 @@ app.use(passport.session());
 
 ////// ROUTES //////
 app.use("/api/users", require("./routes/users"));
-app.use("/api/tvs", require("./routes/tvs"));
+
+//----ADMIN----//
+app.use("/api/admin/tvs", require("./routes/admin/tvs"));
+app.use("/api/admin/computers", require("./routes/admin/computers"));
+app.use("/api/admin/cellphones", require("./routes/admin/cellphones"));
+app.use("/api/admin/accessories", require("./routes/admin/accessories"));
+app.use("/api/admin/customers", require("./routes/admin/customers"));
+
+//----USER----//
+// app.use("/api/tvs", require("./routes/tvs"));
 
 app.use(notFound);
 app.use(errorHandler);

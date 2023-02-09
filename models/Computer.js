@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const computerSchema = mongoose.Schema(
   {
@@ -9,21 +10,24 @@ const computerSchema = mongoose.Schema(
     os: { type: String, required: true },
     graphics: { type: String, required: true },
     display: { type: String, required: true },
-    memory: { type: String, required: true },
+    ram: { type: String, required: true },
     storage: {
       type: { type: String, required: true },
-      interface: { type: String, required: true },
+      interface: { type: String },
       size: { type: Number, required: true },
     },
-    colors: {
-      name: { type: String },
-      code: { type: String },
-      qty: { type: Number, default: 0 },
-    },
+    colors: [
+      {
+        name: { type: String },
+        code: { type: String },
+        qty: { type: Number, default: 0 },
+      },
+    ],
     images: [
       {
         imageUrl: { type: String },
         publicId: { type: String },
+        colorName: { type: String, default: "no" },
         isMain: { type: Boolean, default: false },
       },
     ],
@@ -34,5 +38,7 @@ const computerSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
+
+computerSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model("Computer", computerSchema);

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const tvSchema = mongoose.Schema(
   {
@@ -18,6 +19,7 @@ const tvSchema = mongoose.Schema(
       {
         imageUrl: { type: String },
         publicId: { type: String },
+        colorName: { type: String, default: "no" },
         isMain: { type: Boolean, default: false },
       },
     ],
@@ -25,5 +27,7 @@ const tvSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
+
+tvSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model("Tv", tvSchema);

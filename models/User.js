@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const userSchema = mongoose.Schema(
   {
@@ -14,6 +15,8 @@ const userSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+
+userSchema.plugin(mongoosePaginate);
 
 userSchema.pre("save", async function (next) {
   if (this.password) {
