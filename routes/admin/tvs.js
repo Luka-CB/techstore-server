@@ -13,7 +13,7 @@ const {
   deleteTvs,
   getTv,
 } = require("../../controllers/tvs");
-const admin = require("../../config/authMiddlewares");
+const { admin } = require("../../config/authMiddlewares");
 
 router.route("/add").post(admin, addTv);
 router.route("/get").get(admin, getTvs);

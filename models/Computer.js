@@ -9,12 +9,12 @@ const computerSchema = mongoose.Schema(
     processor: { type: String, required: true },
     os: { type: String, required: true },
     graphics: { type: String, required: true },
-    display: { type: String, required: true },
+    screen: { type: String, required: true },
     ram: { type: String, required: true },
     storage: {
       type: { type: String, required: true },
       interface: { type: String },
-      size: { type: Number, required: true },
+      size: { type: String, required: true },
     },
     colors: [
       {

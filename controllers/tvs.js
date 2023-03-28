@@ -64,7 +64,7 @@ const getTvs = asyncHandler(async (req, res) => {
       }
     : {};
 
-  const limit = searchQ ? 20 : perPage;
+  const limit = searchQ ? 20 : perPage ? perPage : 10;
 
   const options = {
     page: page || 1,
@@ -319,6 +319,77 @@ const deleteImage = asyncHandler(async (req, res) => {
   res.status(200).json({ msg: "Image Deleted Successfully!" });
 });
 
+//////////////////////////////-----GET TV FILTERS-----//////////////////////////////
+const getFilters = asyncHandler(async (req, res) => {
+  let brands = [];
+  let types = [];
+  let sizes = [];
+
+  const tvs = await TV.find().select("brand type sizes");
+
+  tvs.map((tv) => {
+    !brands.some((brand) => brand === tv.brand) && brands.push(tv.brand);
+    !types.some((type) => type === tv.type) && types.push(tv.type);
+    tv.sizes.map((s) => {
+      !sizes.some((size) => size === s.size) && sizes.push(s.size);
+    });
+  });
+
+  const result = [
+    {
+      title: "brands",
+      values: brands,
+    },
+    {
+      title: "types",
+      values: types,
+    },
+    {
+      title: "sizes",
+      values: sizes.sort((a, b) => a - b),
+    },
+  ];
+
+  res.status(200).json(result);
+});
+
+//////////////////////////////-----GET FILTERED TVS-----//////////////////////////////
+
+const GetFilteredTvs = asyncHandler(async (req, res) => {
+  const { brand, type, size } = req.query;
+
+  const filter = size
+    ? {
+        brand: {
+          $regex: brand,
+          $options: "i",
+        },
+        type: {
+          $regex: type.length > 0 ? "^" + type + "$" : "",
+          $options: "i",
+        },
+        sizes: {
+          $elemMatch: {
+            size,
+          },
+        },
+      }
+    : {
+        brand: {
+          $regex: brand,
+          $options: "i",
+        },
+        type: {
+          $regex: type.length > 0 ? "^" + type + "$" : "",
+          $options: "i",
+        },
+      };
+
+  const tvs = await TV.find(filter);
+
+  res.status(200).json(tvs);
+});
+
 module.exports = {
   addTv,
   getTvs,
@@ -332,4 +403,6 @@ module.exports = {
   deleteImage,
   deleteTv,
   deleteTvs,
+  getFilters,
+  GetFilteredTvs,
 };

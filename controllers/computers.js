@@ -80,7 +80,7 @@ const getComputers = asyncHandler(async (req, res) => {
       }
     : {};
 
-  const limit = searchQ ? 20 : perPage;
+  const limit = searchQ ? 20 : perPage ? perPage : 10;
 
   const options = {
     page: page || 1,
@@ -428,6 +428,87 @@ const editImageColorName = asyncHandler(async (req, res) => {
   });
 });
 
+//////////////////////////////-----GET COMPUTER FILTERS-----//////////////////////////////
+const getFilters = asyncHandler(async (req, res) => {
+  let brands = [];
+  let types = [];
+  let storageTypes = [];
+  let storageSizes = [];
+  let rams = [];
+
+  const computers = await Computer.find().select(
+    "brand type storage.type storage.size ram"
+  );
+
+  computers.map((comp) => {
+    !brands.some((brand) => brand === comp.brand) && brands.push(comp.brand);
+    !types.some((type) => type === comp.type) && types.push(comp.type);
+    !storageTypes.some((type) => type === comp.storage.type) &&
+      storageTypes.push(comp.storage.type);
+    !storageSizes.some((size) => size === comp.storage.size) &&
+      storageSizes.push(comp.storage.size);
+    !rams.some((ram) => ram === comp.ram) && rams.push(comp.ram);
+  });
+
+  const result = [
+    {
+      title: "brands",
+      values: brands,
+    },
+    {
+      title: "types",
+      values: types,
+    },
+    {
+      title: "storage types",
+      values: storageTypes,
+    },
+    {
+      title: "storage sizes",
+      values: storageSizes,
+    },
+    {
+      title: "rams",
+      values: rams,
+    },
+  ];
+
+  res.status(200).json(result);
+});
+
+//////////////////////////////-----GET FILTERED COMPUTERS-----//////////////////////////////
+
+const GetFilteredComputers = asyncHandler(async (req, res) => {
+  const { brand, type, storageType, storageSize, ram } = req.query;
+
+  const filter = {
+    brand: {
+      $regex: brand,
+      $options: "i",
+    },
+    type: {
+      $regex: type.length > 0 ? "^" + type + "$" : "",
+      $options: "i",
+    },
+    "storage.type": {
+      $regex: storageType,
+      $options: "i",
+    },
+    "storage.size": {
+      $regex: storageSize,
+      $options: "i",
+    },
+    ram: {
+      $regex: ram,
+      $options: "i",
+    },
+  };
+
+  const computers = await Computer.find(filter);
+
+  res.status(200).json(computers);
+});
+
 module.exports = {
   addComputer,
   getComputers,
@@ -443,4 +524,6 @@ module.exports = {
   deleteImage,
   getImageColorCode,
   editImageColorName,
+  getFilters,
+  GetFilteredComputers,
 };

@@ -10,6 +10,8 @@ const userSchema = mongoose.Schema(
     provider: { type: String, default: "local" },
     providerId: { type: String, default: "" },
     isAdmin: { type: Boolean, default: false },
+    orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
+    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
   },
   {
     timestamps: true,

@@ -1,7 +1,11 @@
 const asyncHandler = require("express-async-handler");
-const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const cookie = require("cookie");
+const User = require("../models/User");
+const Order = require("../models/Order");
+const Review = require("../models/Review");
+
+//////////////////////////////-----REGISTER USER-----//////////////////////////////
 
 const register = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
@@ -14,6 +18,8 @@ const register = asyncHandler(async (req, res) => {
 
   res.json({ msg: "Registered Successfully!" });
 });
+
+//////////////////////////////-----LOGIN ADMIN-----//////////////////////////////
 
 const loginAdmin = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
@@ -44,13 +50,25 @@ const loginAdmin = asyncHandler(async (req, res) => {
   });
 });
 
+//////////////////////////////-----GET USER-----//////////////////////////////
+
 const getUser = (req, res) => {
-  res.json({
-    id: req.user._id,
-    username: req.user.username,
-    isAdmin: req.user.isAdmin,
-  });
+  if (req.user === undefined) {
+    res.json({ user: null, isExpired: true, msg: "Token Expired!" });
+  } else {
+    res.json({
+      user: {
+        id: req.user._id,
+        username: req.user.username,
+        isAdmin: req.user.isAdmin,
+      },
+      isExpired: false,
+      msg: "Token Active!",
+    });
+  }
 };
+
+//////////////////////////////-----GET USER ACCOUNT INFO-----//////////////////////////////
 
 const getUserAccount = asyncHandler(async (req, res) => {
   if (!req.user) throw new Error("Not Authorized!");
@@ -65,6 +83,8 @@ const getUserAccount = asyncHandler(async (req, res) => {
     date: user.createdAt,
   });
 });
+
+//////////////////////////////-----UPDATE ACCOUNT INFO-----//////////////////////////////
 
 const updateUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
@@ -84,14 +104,32 @@ const updateUser = asyncHandler(async (req, res) => {
   res.status(200).send("Updated Successfully!");
 });
 
-const logout = (req, res, next) => {
-  req.logout(function (err) {
-    if (err) {
-      return next(err);
-    }
-    res.clearCookie("connect.sid").send("success");
+//////////////////////////////-----DELETE USER ACCOUNT-----//////////////////////////////
+
+const deleteUser = asyncHandler(async (req, res) => {
+  const deletedOrders = await Order.deleteMany({
+    author: req.user._id,
+    isForAdmin: false,
   });
+  const deletedReviews = await Review.deleteMany({ author: req.user._id });
+
+  if (!deletedOrders) throw new Error("Delete orders request has failed!");
+  if (!deletedReviews) throw new Error("Delete reviews request has failed!");
+
+  const deletedUser = await User.deleteOne({ _id: req.user._id });
+  if (!deletedUser) throw new Error("Delete user account request has failed!");
+
+  res.status(200).json({ msg: "Account Deleted Successfully!" });
+});
+
+//////////////////////////////-----LOGOUT USER-----//////////////////////////////
+
+const logout = (req, res, next) => {
+  req.session = null;
+  res.send("success");
 };
+
+//////////////////////////////-----LOGOUT ADMIN-----//////////////////////////////
 
 const logoutAdmin = asyncHandler(async (req, res) => {
   res.setHeader(
@@ -116,4 +154,5 @@ module.exports = {
   loginAdmin,
   logout,
   logoutAdmin,
+  deleteUser,
 };

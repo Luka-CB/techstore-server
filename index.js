@@ -1,22 +1,18 @@
 const express = require("express");
-const session = require("express-session");
 const cors = require("cors");
+const cookieSession = require("cookie-session");
 const passport = require("passport");
 const connectDB = require("./config/db");
-const MongoStore = require("connect-mongo");
 const { notFound, errorHandler } = require("./config/errorMiddlewares");
 
 require("dotenv").config();
 require("colors");
 require("./config/passport");
 
+const PORT = process.env.PORT || 5000;
+
 connectDB();
 const app = express();
-
-const sessionStore = MongoStore.create({
-  mongoUrl: process.env.MONGO_URI,
-  ttl: 24 * 60 * 60 * 100 * 30,
-});
 
 ////// MIDLEWARES //////
 app.use(express.json({ limit: "25mb" }));
@@ -26,23 +22,20 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      maxAge: 24 * 60 * 60 * 100 * 30,
-      signed: true,
-    },
-    store: sessionStore,
+  cookieSession({
+    name: "teckstorePassportCookie",
+    keys: ["someKey"],
+    maxAge: 24 * 60 * 60 * 100 * 30,
+    path: "/",
   })
 );
+
 app.use(passport.initialize());
 app.use(passport.session());
 
 ////// ROUTES //////
-app.use("/api/users", require("./routes/users"));
 
 //----ADMIN----//
 app.use("/api/admin/tvs", require("./routes/admin/tvs"));
@@ -52,13 +45,19 @@ app.use("/api/admin/accessories", require("./routes/admin/accessories"));
 app.use("/api/admin/customers", require("./routes/admin/customers"));
 
 //----USER----//
-// app.use("/api/tvs", require("./routes/tvs"));
+app.use("/api/users", require("./routes/users"));
+app.use("/api/tvs", require("./routes/tvs"));
+app.use("/api/computers", require("./routes/computers"));
+app.use("/api/cellphones", require("./routes/cellphones"));
+app.use("/api/accessories", require("./routes/accessories"));
+app.use("/api/reviews", require("./routes/reviews"));
+app.use("/api/home", require("./routes/home"));
+app.use("/api/orders", require("./routes/orders"));
 
 app.use(notFound);
 app.use(errorHandler);
 
 ////// SERVER //////
-const PORT = process.env.PORT || 5000;
 app.listen(PORT, () =>
   console.log(`Server is up and running on port ${PORT}`.green.underline.bold)
 );

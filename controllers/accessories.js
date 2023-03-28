@@ -72,7 +72,7 @@ const getAccessories = asyncHandler(async (req, res) => {
       }
     : {};
 
-  const limit = searchQ ? 20 : perPage;
+  const limit = searchQ ? 20 : perPage ? perPage : 10;
 
   const options = {
     page: page || 1,
@@ -412,6 +412,54 @@ const editImageColorName = asyncHandler(async (req, res) => {
   });
 });
 
+//////////////////////////////-----GET ACCESSORY FILTERS-----//////////////////////////////
+const getFilters = asyncHandler(async (req, res) => {
+  let brands = [];
+  let categories = [];
+
+  const accessories = await Accessory.find().select("category brand");
+
+  accessories.map((acc) => {
+    !brands.some((brand) => brand === acc.brand) && brands.push(acc.brand);
+    !categories.some((cat) => cat === acc.category) &&
+      categories.push(acc.category);
+  });
+
+  const result = [
+    {
+      title: "brands",
+      values: brands,
+    },
+    {
+      title: "categories",
+      values: categories,
+    },
+  ];
+
+  res.status(200).json(result);
+});
+
+//////////////////////////////-----GET FILTERED ACCESSORIES-----//////////////////////////////
+
+const GetFilteredAccessories = asyncHandler(async (req, res) => {
+  const { brand, category } = req.query;
+
+  const filter = {
+    brand: {
+      $regex: brand,
+      $options: "i",
+    },
+    category: {
+      $regex: category,
+      $options: "i",
+    },
+  };
+
+  const accessories = await Accessory.find(filter);
+
+  res.status(200).json(accessories);
+});
+
 module.exports = {
   addAccessory,
   getAccessories,
@@ -427,4 +475,6 @@ module.exports = {
   deleteImage,
   getImageColorCode,
   editImageColorName,
+  getFilters,
+  GetFilteredAccessories,
 };

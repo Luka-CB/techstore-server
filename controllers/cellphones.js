@@ -111,7 +111,7 @@ const getCellphones = asyncHandler(async (req, res) => {
       }
     : {};
 
-  const limit = searchQ ? 20 : perPage;
+  const limit = searchQ ? 20 : perPage ? perPage : 10;
 
   const options = {
     page: page || 1,
@@ -486,6 +486,66 @@ const editImageColorName = asyncHandler(async (req, res) => {
   });
 });
 
+//////////////////////////////-----GET CELLPHONE FILTERS-----//////////////////////////////
+const getFilters = asyncHandler(async (req, res) => {
+  let brands = [];
+  let internalStorages = [];
+  let rams = [];
+
+  const cellphones = await Cellphone.find().select(
+    "brand memory.internal memory.ram"
+  );
+
+  cellphones.map((cell) => {
+    !brands.some((brand) => brand === cell.brand) && brands.push(cell.brand);
+    !internalStorages.some((is) => is === cell.memory.internal) &&
+      internalStorages.push(cell.memory.internal);
+    !rams.some((ram) => ram === cell.memory.ram) && rams.push(cell.memory.ram);
+  });
+
+  const result = [
+    {
+      title: "brands",
+      values: brands,
+    },
+    {
+      title: "internal storage",
+      values: internalStorages,
+    },
+    {
+      title: "rams",
+      values: rams,
+    },
+  ];
+
+  res.status(200).json(result);
+});
+
+//////////////////////////////-----GET FILTERED CELLPHONES-----//////////////////////////////
+
+const GetFilteredCellphones = asyncHandler(async (req, res) => {
+  const { brand, internalStorage, ram } = req.query;
+
+  const filter = {
+    brand: {
+      $regex: brand,
+      $options: "i",
+    },
+    "memory.internal": {
+      $regex: internalStorage,
+      $options: "i",
+    },
+    "memory.ram": {
+      $regex: ram,
+      $options: "i",
+    },
+  };
+
+  const cellphones = await Cellphone.find(filter);
+
+  res.status(200).json(cellphones);
+});
+
 module.exports = {
   addCellphone,
   getCellphones,
@@ -501,4 +561,6 @@ module.exports = {
   deleteImage,
   getImageColorCode,
   editImageColorName,
+  getFilters,
+  GetFilteredCellphones,
 };

@@ -15,7 +15,7 @@ const {
   getImageColorCode,
   editImageColorName,
 } = require("../../controllers/cellphones");
-const admin = require("../../config/authMiddlewares");
+const { admin } = require("../../config/authMiddlewares");
 
 router.route("/add").post(admin, addCellphone);
 router.route("/get").get(admin, getCellphones);

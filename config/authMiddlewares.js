@@ -18,4 +18,13 @@ const admin = asyncHandler(async (req, res, next) => {
   }
 });
 
-module.exports = admin;
+const auth = asyncHandler(async (req, res, next) => {
+  if (req.user) {
+    next();
+  } else {
+    res.status(401);
+    throw new Error("Not Authorized!");
+  }
+});
+
+module.exports = { admin, auth };

@@ -5,7 +5,7 @@ const {
   deleteCustomer,
   deleteCustomers,
 } = require("../../controllers/customers");
-const admin = require("../../config/authMiddlewares");
+const { admin } = require("../../config/authMiddlewares");
 
 router.route("/get-all").get(admin, getCustomers);
 router.route("/change-status/:userId").put(admin, changeAdminStatus);
