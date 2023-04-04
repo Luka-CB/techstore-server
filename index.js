@@ -18,19 +18,14 @@ const app = express();
 app.use(express.json({ limit: "25mb" }));
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://techstore-client.onrender.com",
-      "https://techstore-client.vercel.app",
-    ],
+    allowedHeaders: ["authorization", "Content-Type"],
+    exposedHeaders: ["authorization"],
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
     credentials: true,
   })
 );
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  next();
-});
 
 app.use(
   cookieSession({
