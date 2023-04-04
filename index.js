@@ -18,7 +18,11 @@ const app = express();
 app.use(express.json({ limit: "25mb" }));
 app.use(
   cors({
-    origin: [process.env.CLIENT_URL, process.env.CLIENT_URL_PRODUCTION],
+    origin: [
+      "http://localhost:5173",
+      "https://techstore-client.onrender.com",
+      "https://techstore-client.vercel.app",
+    ],
     credentials: true,
   })
 );
