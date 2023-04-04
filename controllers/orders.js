@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const { v4: uuidv4 } = require("uuid");
 const Order = require("../models/Order");
 const User = require("../models/User");
+const date = require("date-and-time");
 
 //////////////////////////////-----SAVE NEW ORDER-----//////////////////////////////
 
@@ -84,10 +85,34 @@ const deleteOrder = asyncHandler(async (req, res) => {
   res.status(200).json({ msg: "Deleted Successfully!" });
 });
 
+//////////////////////////////-----GET ORDERS FOR ADMIN-----//////////////////////////////
+
+const getOrdersAdmin = asyncHandler(async (req, res) => {
+  const { rppn } = req.query;
+
+  const orders = await Order.find({ isForAdmin: true })
+    .populate("author", "username")
+    .select(
+      "_id orderId author items totalPrice createdAt isPaid payDate isDelivered deliverDate"
+    );
+
+  const num = rppn == 0 ? 20 : rppn;
+
+  const slicedOrders = orders.slice(0, num);
+
+  const modifiedOrders = slicedOrders.map((order) => {
+    const newDate = date.format(new Date(order.createdAt), "DD/MM/YYYY");
+    return { ...order._doc, createdAt: newDate };
+  });
+
+  res.status(200).json(modifiedOrders);
+});
+
 module.exports = {
   saveOrder,
   getOrders,
   getOrder,
   updatePaidState,
   deleteOrder,
+  getOrdersAdmin,
 };

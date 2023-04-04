@@ -18,7 +18,7 @@ const app = express();
 app.use(express.json({ limit: "25mb" }));
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: [process.env.CLIENT_URL, process.env.CLIENT_URL_PRODUCTION],
     credentials: true,
   })
 );
@@ -43,6 +43,7 @@ app.use("/api/admin/computers", require("./routes/admin/computers"));
 app.use("/api/admin/cellphones", require("./routes/admin/cellphones"));
 app.use("/api/admin/accessories", require("./routes/admin/accessories"));
 app.use("/api/admin/customers", require("./routes/admin/customers"));
+app.use("/api/admin/orders", require("./routes/admin/orders"));
 
 //----USER----//
 app.use("/api/users", require("./routes/users"));
@@ -53,6 +54,7 @@ app.use("/api/accessories", require("./routes/accessories"));
 app.use("/api/reviews", require("./routes/reviews"));
 app.use("/api/home", require("./routes/home"));
 app.use("/api/orders", require("./routes/orders"));
+app.use("/api/incomes", require("./routes/incomes"));
 
 app.use(notFound);
 app.use(errorHandler);
