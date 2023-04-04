@@ -20,7 +20,11 @@ app.use(
   cors({
     allowedHeaders: ["authorization", "Content-Type"],
     exposedHeaders: ["authorization"],
-    origin: "*",
+    origin: [
+      "http://localhost:5173",
+      "https://techstore-client.onrender.com",
+      "https://techstore-client.vercel.app",
+    ],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
     credentials: true,
