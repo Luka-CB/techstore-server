@@ -18,7 +18,11 @@ const app = express();
 app.use(express.json({ limit: "25mb" }));
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://techstore-client.onrender.com"],
+    origin: [
+      "http://localhost:3000",
+      "https://techstore-client.onrender.com",
+      "https://singular-lollipop-5d46f0.netlify.app",
+    ],
     credentials: true,
   })
 );
@@ -28,8 +32,6 @@ app.use(
     name: "teckstorePassportCookie",
     keys: ["someKey"],
     maxAge: 24 * 60 * 60 * 100 * 30,
-    sameSite: "none",
-    secure: process.env.NODE_ENV !== "development",
     path: "/",
   })
 );
