@@ -16,16 +16,7 @@ const app = express();
 
 ////// MIDLEWARES //////
 app.use(express.json({ limit: "25mb" }));
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://techstore-client.onrender.com",
-      "https://techstore-client.vercel.app",
-    ],
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.use(
   cookieSession({
