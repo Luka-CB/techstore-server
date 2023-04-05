@@ -16,7 +16,12 @@ const app = express();
 
 ////// MIDLEWARES //////
 app.use(express.json({ limit: "25mb" }));
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://techstore-client.onrender.com"],
+    credentials: true,
+  })
+);
 
 app.use(
   cookieSession({
