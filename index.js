@@ -23,7 +23,7 @@ app.use(
       "http://localhost:5173",
       "https://techstore-client.onrender.com",
       "https://singular-lollipop-5d46f0.netlify.app",
-      "https://techstorecl.vercel.app/",
+      "https://techstorecl.vercel.app",
       "https://techstore-admin.vercel.app",
     ],
     credentials: true,
