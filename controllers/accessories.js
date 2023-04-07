@@ -46,7 +46,7 @@ const addAccessory = asyncHandler(async (req, res) => {
     {
       $push: {
         images: {
-          imageUrl: result.url,
+          imageUrl: result.secure_url,
           publicId: result.public_id,
           colorName: accessoryData.imageData.imageColorName,
           isMain: true,
@@ -290,7 +290,7 @@ const addImage = asyncHandler(async (req, res) => {
     {
       $push: {
         images: {
-          imageUrl: result.url,
+          imageUrl: result.secure_url,
           publicId: result.public_id,
           colorName: colorExists && modifiedColorName,
         },

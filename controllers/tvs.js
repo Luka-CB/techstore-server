@@ -38,7 +38,7 @@ const addTv = asyncHandler(async (req, res) => {
     {
       $push: {
         images: {
-          imageUrl: result.url,
+          imageUrl: result.secure_url,
           publicId: result.public_id,
           colorName: tvData.imageData.imageColorName,
           isMain: true,
@@ -253,7 +253,7 @@ const addImage = asyncHandler(async (req, res) => {
     {
       $push: {
         images: {
-          imageUrl: result.url,
+          imageUrl: result.secure_url,
           publicId: result.public_id,
           colorName: data.imageData.colorName,
         },
