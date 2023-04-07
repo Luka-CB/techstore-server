@@ -31,7 +31,7 @@ const addComputer = asyncHandler(async (req, res) => {
     processor: computerData.processor,
     os: computerData.os,
     graphics: computerData.graphics,
-    display: computerData.display,
+    screen: computerData.screen,
     ram: computerData.ram,
     storage: {
       type: computerData.storagetype,
@@ -132,7 +132,7 @@ const updateComputerInfo = asyncHandler(async (req, res) => {
     computer.processor = data.processor || computer.processor;
     computer.os = data.os || computer.os;
     computer.graphics = data.graphics || computer.graphics;
-    computer.display = data.display || computer.display;
+    computer.screen = data.screen || computer.screen;
     computer.memory = data.memory || computer.memory;
     computer.storage.type = data.storagetype || computer.storage.type;
     computer.storage.interface = data.interface || computer.storage.interface;

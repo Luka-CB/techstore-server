@@ -35,7 +35,7 @@ app.use(
     name: "teckstorePassportCookie",
     keys: ["someKey"],
     maxAge: 24 * 60 * 60 * 100 * 30,
-    sameSite: "none",
+    sameSite: "strict",
     secure: process.env.NODE_ENV !== "development",
     path: "/",
   })

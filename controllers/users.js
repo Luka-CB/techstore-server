@@ -38,7 +38,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
     cookie.serialize("techstoreusertoken", token, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 100 * 30,
-      sameSite: "none",
+      sameSite: "strict",
       secure: process.env.NODE_ENV !== "development",
       path: "/",
     })
@@ -137,7 +137,7 @@ const logoutAdmin = asyncHandler(async (req, res) => {
     cookie.serialize("techstoreusertoken", "", {
       httpOnly: false,
       maxAge: new Date(0),
-      sameSite: "none",
+      sameSite: "strict",
       secure: process.env.NODE_ENV !== "development",
       path: "/",
     })
