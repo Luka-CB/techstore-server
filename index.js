@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const passport = require("passport");
-const session = require("express-session");
+const session = require("cookie-session");
 const connectDB = require("./config/db");
 const { notFound, errorHandler } = require("./config/errorMiddlewares");
 
@@ -31,14 +31,9 @@ app.use(
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      // sameSite: "none",
-      // secure: true,
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-    },
+    name: "techstoreCookie",
+    keys: ["key1", "key2"],
+    maxAge: 1000 * 60 * 60 * 24 * 7,
   })
 );
 

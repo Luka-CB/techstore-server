@@ -118,8 +118,6 @@ const deleteUser = asyncHandler(async (req, res) => {
 
 const logout = (req, res, next) => {
   req.logout();
-  req.session.destroy();
-  req.session = null;
   res.send("success");
 };
 

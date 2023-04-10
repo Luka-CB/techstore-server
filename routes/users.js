@@ -1,5 +1,4 @@
 const router = require("express").Router();
-const jwt = require("jsonwebtoken");
 const {
   register,
   logout,
@@ -27,10 +26,9 @@ router.get(
 router.get(
   "/login/google/callback",
   passport.authenticate("google", {
-    successRedirect:
-      process.env.NODE_ENV === "development"
-        ? process.env.CLIENT_URL
-        : process.env.CLIENT_URL_PRODUCTION,
+    scope: ["profile"],
+    successMessage: "success",
+    successRedirect: "https://techstore-seven.vercel.app/redirect",
     failureRedirect: "/login/failed",
   })
 );
