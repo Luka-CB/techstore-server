@@ -9,7 +9,10 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/api/users/login/google/callback",
+      callbackURL:
+        process.env.NODE_ENV === "development"
+          ? "/api/users/login/google/callback"
+          : "https://techstore-api-3jmr.onrender.com/api/users/login/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
