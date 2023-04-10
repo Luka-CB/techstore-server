@@ -1,6 +1,5 @@
 const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
-const cookie = require("cookie");
 const User = require("../models/User");
 const Order = require("../models/Order");
 const Review = require("../models/Review");
@@ -19,54 +18,47 @@ const register = asyncHandler(async (req, res) => {
   res.json({ msg: "Registered Successfully!" });
 });
 
-//////////////////////////////-----LOGIN ADMIN-----//////////////////////////////
+//////////////////////////////-----LOGIN-----//////////////////////////////
 
-const loginAdmin = asyncHandler(async (req, res) => {
+const login = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
 
   const user = await User.findOne({ username });
 
   if (!user) throw new Error("Username is Incorrect!");
-  if (!user.isAdmin) throw new Error("Not Authorized as an Admin!");
   if (!(await user.matchPassword(password)))
     throw new Error("Password is Incorrect!");
 
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
-  res.setHeader(
-    "Set-Cookie",
-    cookie.serialize("techstoreusertoken", token, {
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 100 * 30,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV !== "development",
-      path: "/",
-    })
-  );
-
   res.status(200).json({
     id: user._id,
     username: user.username,
+    isAdmin: user.isAdmin,
+    provider: user.provider,
+    token,
   });
 });
 
-//////////////////////////////-----GET USER-----//////////////////////////////
+//////////////////////////////-----GET OAUTH USER-----//////////////////////////////
 
-const getUser = (req, res) => {
-  if (req.user === undefined) {
-    res.json({ user: null, isExpired: true, msg: "Token Expired!" });
-  } else {
-    res.json({
-      user: {
-        id: req.user._id,
-        username: req.user.username,
-        isAdmin: req.user.isAdmin,
-      },
-      isExpired: false,
-      msg: "Token Active!",
-    });
+const getOauthUser = asyncHandler(async (req, res) => {
+  if (req.user) {
+    const user = await User.findById(req.user._id);
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+
+    const data = {
+      id: user._id,
+      username: user.username,
+      isAdmin: user.isAdmin,
+      provider: user.provider,
+      token,
+    };
+
+    res.status(200).json(data);
   }
-};
+});
 
 //////////////////////////////-----GET USER ACCOUNT INFO-----//////////////////////////////
 
@@ -125,34 +117,17 @@ const deleteUser = asyncHandler(async (req, res) => {
 //////////////////////////////-----LOGOUT USER-----//////////////////////////////
 
 const logout = (req, res, next) => {
+  req.session.destroy();
   req.session = null;
   res.send("success");
 };
 
-//////////////////////////////-----LOGOUT ADMIN-----//////////////////////////////
-
-const logoutAdmin = asyncHandler(async (req, res) => {
-  res.setHeader(
-    "Set-Cookie",
-    cookie.serialize("techstoreusertoken", "", {
-      httpOnly: false,
-      maxAge: new Date(0),
-      sameSite: "strict",
-      secure: process.env.NODE_ENV !== "development",
-      path: "/",
-    })
-  );
-
-  res.status(200).send("Logged Out Successfully!");
-});
-
 module.exports = {
   register,
-  getUser,
   getUserAccount,
+  getOauthUser,
   updateUser,
-  loginAdmin,
+  login,
   logout,
-  logoutAdmin,
   deleteUser,
 };

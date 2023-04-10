@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-const cookieSession = require("cookie-session");
 const passport = require("passport");
+const session = require("express-session");
 const connectDB = require("./config/db");
 const { notFound, errorHandler } = require("./config/errorMiddlewares");
 
@@ -31,13 +31,10 @@ app.use(
 );
 
 app.use(
-  cookieSession({
-    name: "teckstorePassportCookie",
-    keys: ["someKey"],
-    maxAge: 24 * 60 * 60 * 100 * 30,
-    sameSite: "strict",
-    secure: process.env.NODE_ENV !== "development",
-    path: "/",
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
   })
 );
 

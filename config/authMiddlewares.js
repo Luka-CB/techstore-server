@@ -1,29 +1,32 @@
 const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
-const cookie = require("cookie");
 const User = require("../models/User");
 
-const admin = asyncHandler(async (req, res, next) => {
-  if (req.headers.cookie) {
+const auth = asyncHandler(async (req, res, next) => {
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
     try {
-      const { techstoreusertoken } = cookie.parse(req.headers.cookie);
-      const decoded = jwt.verify(techstoreusertoken, process.env.JWT_SECRET);
-      req.admin = await User.findById(decoded.id).select("-password");
+      const token = req.headers.authorization.split(" ")[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = await User.findById(decoded.id).select("-password");
 
       next();
     } catch (error) {
+      console.log(error);
       res.status(401);
       throw new Error("Not Authorized Token!");
     }
   }
 });
 
-const auth = asyncHandler(async (req, res, next) => {
-  if (req.user) {
+const admin = asyncHandler(async (req, res, next) => {
+  if (req.userLocal && req.userLocal.isAdmin) {
     next();
   } else {
     res.status(401);
-    throw new Error("Not Authorized!");
+    throw new Error("Not Authorized as Admin!");
   }
 });
 

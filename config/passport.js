@@ -1,25 +1,8 @@
 const passport = require("passport");
 const User = require("../models/User");
 
-const localStrategy = require("passport-local").Strategy;
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStartegy = require("passport-facebook").Strategy;
-
-passport.use(
-  new localStrategy(async (username, password, done) => {
-    const user = await User.findOne({ username });
-
-    try {
-      if (!user) throw new Error("Username is Invalid!");
-      if (!(await user.matchPassword(password)))
-        throw new Error("Password is Invalid!");
-
-      done(null, user);
-    } catch (error) {
-      done(error.message, false);
-    }
-  })
-);
 
 passport.use(
   new GoogleStrategy(
