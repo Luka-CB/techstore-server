@@ -21,7 +21,7 @@ app.use(
     origin: [
       "http://localhost:3000",
       "http://localhost:5173",
-      "https://techstore-seven.vercel.app",
+      "https://techstore-three.vercel.app",
     ],
     credentials: true,
   })

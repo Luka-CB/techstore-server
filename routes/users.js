@@ -28,7 +28,7 @@ router.get(
   passport.authenticate("google", {
     scope: ["profile"],
     successMessage: "success",
-    successRedirect: "https://techstore-seven.vercel.app/redirect",
+    successRedirect: "https://techstore-three.vercel.app/redirect",
     failureRedirect: "/login/failed",
   })
 );
