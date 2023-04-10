@@ -27,7 +27,7 @@ app.use(
   })
 );
 
-app.set("trust proxy", 1);
+// app.set("trust proxy", 1);
 
 app.use(
   session({
@@ -35,8 +35,8 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: {
-      sameSite: "none",
-      secure: process.env.NODE_ENV !== "development",
+      // sameSite: "none",
+      // secure: true,
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
   })
