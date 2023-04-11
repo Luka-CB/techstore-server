@@ -22,7 +22,7 @@ const auth = asyncHandler(async (req, res, next) => {
 });
 
 const admin = asyncHandler(async (req, res, next) => {
-  if (req.userLocal && req.userLocal.isAdmin) {
+  if (req.user && req.user.isAdmin) {
     next();
   } else {
     res.status(401);

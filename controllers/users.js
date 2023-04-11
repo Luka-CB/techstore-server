@@ -40,6 +40,26 @@ const login = asyncHandler(async (req, res) => {
   });
 });
 
+//////////////////////////////-----LOGIN ADMIN-----//////////////////////////////
+
+const loginAdmin = asyncHandler(async (req, res) => {
+  const { username, password } = req.body;
+
+  const user = await User.findOne({ username });
+
+  if (!user) throw new Error("Username is Incorrect!");
+  if (!(await user.matchPassword(password)))
+    throw new Error("Password is Incorrect!");
+  if (!user.isAdmin) throw new Error("Not Authorized as Admin!");
+
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+
+  res.status(200).json({
+    id: user._id,
+    token,
+  });
+});
+
 //////////////////////////////-----GET OAUTH USER-----//////////////////////////////
 
 const getOauthUser = asyncHandler(async (req, res) => {
@@ -127,6 +147,7 @@ module.exports = {
   getOauthUser,
   updateUser,
   login,
+  loginAdmin,
   logout,
   deleteUser,
 };

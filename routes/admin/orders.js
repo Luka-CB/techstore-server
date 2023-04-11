@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const { getOrdersAdmin } = require("../../controllers/orders");
-const { admin } = require("../../config/authMiddlewares");
+const { auth, admin } = require("../../config/authMiddlewares");
 
-router.route("/get-all").get(admin, getOrdersAdmin);
+router.route("/get-all").get(auth, admin, getOrdersAdmin);
 
 module.exports = router;

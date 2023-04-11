@@ -13,19 +13,19 @@ const {
   deleteTvs,
   getTv,
 } = require("../../controllers/tvs");
-const { admin } = require("../../config/authMiddlewares");
+const { auth, admin } = require("../../config/authMiddlewares");
 
-router.route("/add").post(admin, addTv);
-router.route("/get").get(admin, getTvs);
-router.route("/get-one/:productId").get(admin, getTv);
-router.route("/update-info").put(admin, updateTvInfo);
-router.route("/delete-many").delete(admin, deleteTvs);
-router.route("/delete/:productId").delete(deleteTv);
-router.route("/add-size").put(admin, addTvSize);
-router.route("/delete-size").put(admin, deleteTvSize);
-router.route("/edit-size").put(admin, editTvSize);
-router.route("/add-image").put(admin, addImage);
-router.route("/change-image-status").put(admin, changeImageStatus);
-router.route("/delete-image").put(admin, deleteImage);
+router.route("/add").post(auth, admin, addTv);
+router.route("/get").get(auth, admin, getTvs);
+router.route("/get-one/:productId").get(auth, admin, getTv);
+router.route("/update-info").put(auth, admin, updateTvInfo);
+router.route("/delete-many").delete(auth, admin, deleteTvs);
+router.route("/delete/:productId").delete(auth, admin, deleteTv);
+router.route("/add-size").put(auth, admin, addTvSize);
+router.route("/delete-size").put(auth, admin, deleteTvSize);
+router.route("/edit-size").put(auth, admin, editTvSize);
+router.route("/add-image").put(auth, admin, addImage);
+router.route("/change-image-status").put(auth, admin, changeImageStatus);
+router.route("/delete-image").put(auth, admin, deleteImage);
 
 module.exports = router;

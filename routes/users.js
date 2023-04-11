@@ -7,12 +7,14 @@ const {
   deleteUser,
   login,
   getOauthUser,
+  loginAdmin,
 } = require("../controllers/users");
 const passport = require("passport");
 const { auth } = require("../config/authMiddlewares");
 
 router.route("/register").post(register);
 router.route("/login").post(login);
+router.route("/login/admin").post(loginAdmin);
 router.route("/oauth/user").get(getOauthUser);
 router.route("/user-account").get(auth, getUserAccount);
 router.route("/update").put(auth, updateUser);
