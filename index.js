@@ -22,6 +22,7 @@ app.use(
       "http://localhost:3000",
       "http://localhost:5173",
       "https://techstore-three.vercel.app",
+      "https://techstore-admin.vercel.app",
     ],
     credentials: true,
   })
