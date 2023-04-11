@@ -184,13 +184,15 @@ const addAccessoryColor = asyncHandler(async (req, res) => {
   const { productId, name, code, qty } = req.body;
 
   const accessory = await Accessory.findById(productId);
-  const colorExists = accessory.colors.some((dbColor) => dbColor.name === name);
+  const colorExists = accessory.colors.some(
+    (dbColor) => dbColor.name === name.toLowerCase()
+  );
 
   if (colorExists) throw new Error("This color already exists!");
 
   const updatedAccessory = await Accessory.updateOne(
     { _id: productId },
-    { $push: { colors: { name, code, qty } } }
+    { $push: { colors: { name: name.toLowerCase(), code, qty } } }
   );
 
   if (!updatedAccessory)
@@ -219,7 +221,7 @@ const editAccessoryColor = asyncHandler(async (req, res) => {
     { _id: productId, "colors._id": _id },
     {
       $set: {
-        "colors.$.name": name,
+        "colors.$.name": name.toLowerCase(),
         "colors.$.code": code,
         "colors.$.qty": qty,
       },
@@ -273,16 +275,8 @@ const addImage = asyncHandler(async (req, res) => {
   );
   if (!result) throw new Error("Failed to upload image!");
 
-  const modifiedColorName = data.imageData.colorName
-    ? data.imageData.colorName
-        .toLowerCase()
-        .split(" ")
-        .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
-        .join(" ")
-    : "";
-
   const colorExists = accessory.colors.find(
-    (color) => color.name === modifiedColorName
+    (color) => color.name === data.imageData.colorName.toLowerCase()
   );
 
   const updatedImage = await Accessory.updateOne(
@@ -292,7 +286,7 @@ const addImage = asyncHandler(async (req, res) => {
         images: {
           imageUrl: result.secure_url,
           publicId: result.public_id,
-          colorName: colorExists && modifiedColorName,
+          colorName: colorExists && data.imageData.colorName.toLowerCase(),
         },
       },
     }
@@ -361,17 +355,9 @@ const deleteImage = asyncHandler(async (req, res) => {
 const getImageColorCode = asyncHandler(async (req, res) => {
   const { productId, colorName } = req.query;
 
-  const modifiedColorName = colorName
-    ? colorName
-        .toLowerCase()
-        .split(" ")
-        .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
-        .join(" ")
-    : "";
-
   const accessory = await Accessory.findById(productId);
   const colorCode = accessory.colors.find(
-    (color) => color.name === modifiedColorName
+    (color) => color.name === colorName
   ).code;
 
   res.status(200).json(colorCode);
@@ -382,25 +368,17 @@ const getImageColorCode = asyncHandler(async (req, res) => {
 const editImageColorName = asyncHandler(async (req, res) => {
   const { productId, imageId, colorName } = req.body;
 
-  const modifiedColorName = colorName
-    ? colorName
-        .toLowerCase()
-        .split(" ")
-        .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
-        .join(" ")
-    : "";
-
   const accessory = await Accessory.findById(productId);
 
   const colorExists = accessory.colors.find(
-    (color) => color.name === modifiedColorName
+    (color) => color.name === colorName
   );
   if (colorName && !colorExists)
-    throw new Error(`No Match Found for Color Name "${modifiedColorName}"!`);
+    throw new Error(`No Match Found for Color Name "${colorName}"!`);
 
   await Accessory.updateOne(
     { _id: productId, "images._id": imageId },
-    { $set: { "images.$.colorName": modifiedColorName } }
+    { $set: { "images.$.colorName": colorName } }
   );
 
   res.status(200).json({
