@@ -33,6 +33,8 @@ app.use(
   session({
     name: "techstoreCookie",
     keys: ["key1", "key2"],
+    sameSite: "none",
+    secure: true,
     maxAge: 1000 * 60 * 60 * 24 * 7,
   })
 );

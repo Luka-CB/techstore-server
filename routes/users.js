@@ -28,7 +28,10 @@ router.get(
   passport.authenticate("google", {
     scope: ["profile"],
     successMessage: "success",
-    successRedirect: "https://techstore-three.vercel.app/redirect",
+    successRedirect:
+      process.env.NODE_ENV === "development"
+        ? `${process.env.CLIENT_URL}/redirect`
+        : `${process.env.CLIENT_URL_PRODUCTION}/redirect`,
     failureRedirect: "/login/failed",
   })
 );
@@ -42,8 +45,8 @@ router.get(
   passport.authenticate("facebook", {
     successRedirect:
       process.env.NODE_ENV === "development"
-        ? process.env.CLIENT_URL
-        : process.env.CLIENT_URL_PRODUCTION,
+        ? `${process.env.CLIENT_URL}/redirect`
+        : `${process.env.CLIENT_URL_PRODUCTION}/redirect`,
     failureRedirect: "/login/failed",
   })
 );
