@@ -40,7 +40,10 @@ passport.use(
     {
       clientID: process.env.FACEBOOK_CLIENT_ID,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-      callbackURL: "/api/users/login/facebook/callback",
+      callbackURL:
+        process.env.NODE_ENV === "development"
+          ? "/api/users/login/facebook/callback"
+          : "https://techstore-server-production.up.railway.app/api/users/login/facebook/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
