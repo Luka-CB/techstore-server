@@ -25,7 +25,7 @@ const saveOrder = asyncHandler(async (req, res) => {
 
   await User.updateOne(
     { _id: req.user._id },
-    { $push: { orders: newOrder._id } }
+    { $push: { orders: newOrder.orderId } }
   );
 
   res.status(200).json({
@@ -40,7 +40,9 @@ const getOrders = asyncHandler(async (req, res) => {
   const orders = await Order.find({
     author: req.user._id,
     isForAdmin: false,
-  }).select("_id isPaid payDate isDelivered deliverDate createdAt updatedAt");
+  }).select(
+    "_id orderId isPaid payDate isDelivered deliverDate createdAt updatedAt"
+  );
   if (!orders) throw new Error("Get orders request has failed!");
 
   res.status(200).json(orders);
@@ -72,12 +74,27 @@ const updatePaidState = asyncHandler(async (req, res) => {
   res.status(200).json({ msg: "Paid Successfully!" });
 });
 
+//////////////////////////////-----UPDATE DELIVERED STATE-----//////////////////////////////
+
+const updateDeliveredState = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+
+  const updatedOrder = await Order.updateMany(
+    { orderId },
+    { isDelivered: true, deliverDate: Date.now() }
+  );
+  if (!updatedOrder)
+    throw new Error("Update order delivered state request has failed!");
+
+  res.status(200).json({ msg: "Updated Successfully!" });
+});
+
 //////////////////////////////-----DELETE ORDER-----//////////////////////////////
 
 const deleteOrder = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
 
-  const deletedOrder = await Order.deleteOne({ _id: orderId });
+  const deletedOrder = await Order.deleteOne({ orderId, isForAdmin: false });
   if (!deletedOrder) throw new Error("Delete order request has failed!");
 
   await User.updateOne({ _id: req.user._id }, { $pull: { orders: orderId } });
@@ -85,12 +102,99 @@ const deleteOrder = asyncHandler(async (req, res) => {
   res.status(200).json({ msg: "Deleted Successfully!" });
 });
 
+//////////////////////////////-----DELETE ORDER BY ADMIN-----//////////////////////////////
+
+const deleteOrderByAdmin = asyncHandler(async (req, res) => {
+  const { orderId, userId } = req.query;
+
+  let deletedOrder;
+
+  const order = await Order.findOne({
+    orderId,
+  });
+
+  if (!order.isPaid) {
+    deletedOrder = await Order.deleteMany({ orderId });
+    await User.updateOne({ _id: userId }, { $pull: { orders: orderId } });
+  } else {
+    deletedOrder = await Order.deleteOne({ orderId, isForAdmin: true });
+  }
+
+  if (!deletedOrder)
+    throw new Error("Delete order by admin request has failed!");
+
+  res.status(200).json({ msg: "Deleted Successfullly!", order });
+});
+
+//////////////////////////////-----DELETE ORDERS BY ADMIN-----//////////////////////////////
+
+const deleteOrdersByAdmin = asyncHandler(async (req, res) => {
+  const { orderIds } = req.body;
+
+  const orders = await Order.find({
+    orderId: { $in: orderIds },
+    isForAdmin: true,
+  });
+
+  // Delete paid orders
+  const paidOrders = orders.filter((order) => order.isPaid);
+  const paidOrderIds = paidOrders.map((order) => order.orderId);
+  const deletedPaidOrders = await Order.deleteMany({
+    orderId: { $in: paidOrderIds },
+    isForAdmin: true,
+  });
+  if (!deletedPaidOrders)
+    throw new Error("Delete paid orders request has failed!");
+
+  // Delete unpaid orders
+  const unpaidOrders = orders.filter((order) => !order.isPaid);
+  const unpaidOrderIds = unpaidOrders.map((order) => order.orderId);
+  const userIds = unpaidOrders.map((order) => order.author);
+  const deletedUnpaidOrders = await Order.deleteMany({
+    orderId: { $in: unpaidOrderIds },
+  });
+  if (!deletedUnpaidOrders)
+    throw new Error("Delete unpaid orders request has failed!");
+  await User.updateMany(
+    { _id: { $in: userIds } },
+    { $pullAll: { orders: unpaidOrderIds } }
+  );
+
+  res.status(200).json({ msg: "Deleted Successfully!" });
+});
+
 //////////////////////////////-----GET ORDERS FOR ADMIN-----//////////////////////////////
 
 const getOrdersAdmin = asyncHandler(async (req, res) => {
-  const { rppn } = req.query;
+  const { rppn, orderId, userId, sortBy } = req.query;
 
-  const orders = await Order.find({ isForAdmin: true })
+  const keyword = orderId
+    ? {
+        orderId,
+      }
+    : userId
+    ? {
+        author: userId,
+      }
+    : sortBy === "paid"
+    ? {
+        isPaid: true,
+      }
+    : sortBy === "unpaid"
+    ? {
+        isPaid: false,
+      }
+    : sortBy === "delivered"
+    ? {
+        isDelivered: true,
+      }
+    : sortBy === "undelivered"
+    ? {
+        isDelivered: false,
+      }
+    : {};
+
+  const orders = await Order.find({ ...keyword, isForAdmin: true })
     .populate("author", "username")
     .select(
       "_id orderId author items totalPrice createdAt isPaid payDate isDelivered deliverDate"
@@ -102,7 +206,17 @@ const getOrdersAdmin = asyncHandler(async (req, res) => {
 
   const modifiedOrders = slicedOrders.map((order) => {
     const newDate = date.format(new Date(order.createdAt), "DD/MM/YYYY");
-    return { ...order._doc, createdAt: newDate };
+    const newPayDate = date.format(new Date(order.payDate), "DD/MM/YYYY");
+    const newDeliverDate = date.format(
+      new Date(order.deliverDate),
+      "DD/MM/YYYY"
+    );
+    return {
+      ...order._doc,
+      createdAt: newDate,
+      payDate: newPayDate,
+      deliverDate: newDeliverDate,
+    };
   });
 
   res.status(200).json(modifiedOrders);
@@ -113,6 +227,9 @@ module.exports = {
   getOrders,
   getOrder,
   updatePaidState,
+  updateDeliveredState,
   deleteOrder,
   getOrdersAdmin,
+  deleteOrderByAdmin,
+  deleteOrdersByAdmin,
 };

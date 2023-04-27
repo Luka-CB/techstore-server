@@ -26,8 +26,8 @@ const cellphoneSchema = mongoose.Schema(
     },
     memory: {
       cardSlot: { type: String, required: true },
-      internal: { type: String, required: true },
-      ram: { type: String, required: true },
+      internal: { type: Number, required: true },
+      ram: { type: Number, required: true },
     },
     mainCamera: {
       picture: {

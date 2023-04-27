@@ -35,7 +35,7 @@ const orderSchema = mongoose.Schema(
     isPaid: { type: Boolean, default: false },
     payDate: { type: String, default: null },
     isDelivered: { type: Boolean, default: false },
-    deliverDate: { type: String, default: null },
+    deliverDate: { type: Date, default: null },
     isForAdmin: { type: Boolean, default: false },
   },
   { timestamps: true }

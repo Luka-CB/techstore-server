@@ -52,6 +52,8 @@ app.use("/api/admin/cellphones", require("./routes/admin/cellphones"));
 app.use("/api/admin/accessories", require("./routes/admin/accessories"));
 app.use("/api/admin/customers", require("./routes/admin/customers"));
 app.use("/api/admin/orders", require("./routes/admin/orders"));
+app.use("/api/admin/reviews", require("./routes/admin/reviews"));
+app.use("/api/admin/dashboard", require("./routes/admin/dashboard"));
 
 //----USER----//
 app.use("/api/users", require("./routes/users"));

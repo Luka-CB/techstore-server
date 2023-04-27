@@ -4,13 +4,13 @@ const mongoosePaginate = require("mongoose-paginate-v2");
 
 const userSchema = mongoose.Schema(
   {
-    username: { type: String, require: true },
+    username: { type: String, required: true },
     email: { type: String, default: "" },
-    password: { type: String, require: true },
+    password: { type: String, required: true },
     provider: { type: String, default: "local" },
     providerId: { type: String, default: "" },
     isAdmin: { type: Boolean, default: false },
-    orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
+    orders: [{ type: String, required: true }],
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
   },
   {
