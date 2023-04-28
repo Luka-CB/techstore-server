@@ -9,7 +9,7 @@ const computerSchema = mongoose.Schema(
     processor: { type: String, required: true },
     os: { type: String, required: true },
     graphics: { type: String, required: true },
-    screen: { type: String, required: true },
+    screen: { type: String },
     ram: { type: Number, required: true },
     storage: {
       type: { type: String, required: true },
@@ -31,7 +31,7 @@ const computerSchema = mongoose.Schema(
         isMain: { type: Boolean, default: false },
       },
     ],
-    camera: { type: String, required: true },
+    camera: { type: String },
     weight: { type: String, required: true },
     price: { type: Number, required: true },
     totalQty: { type: Number, default: 0 },
