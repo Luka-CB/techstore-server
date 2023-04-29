@@ -3,11 +3,11 @@ const mongoosePaginate = require("mongoose-paginate-v2");
 
 const tvSchema = mongoose.Schema(
   {
-    name: { type: String, required: true },
-    brand: { type: String, required: true },
+    name: { type: String, required: true, trim: true },
+    brand: { type: String, required: true, trim: true },
     year: { type: Number, required: true },
-    type: { type: String, required: true },
-    resolution: { type: String, required: true },
+    type: { type: String, required: true, trim: true },
+    resolution: { type: String, required: true, trim: true },
     sizes: [
       {
         size: { type: Number },

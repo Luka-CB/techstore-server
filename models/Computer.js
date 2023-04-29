@@ -3,23 +3,23 @@ const mongoosePaginate = require("mongoose-paginate-v2");
 
 const computerSchema = mongoose.Schema(
   {
-    name: { type: String, required: true },
-    brand: { type: String, required: true },
-    type: { type: String, required: true },
-    processor: { type: String, required: true },
-    os: { type: String, required: true },
-    graphics: { type: String, required: true },
-    screen: { type: String },
+    name: { type: String, required: true, trim: true },
+    brand: { type: String, required: true, trim: true },
+    type: { type: String, required: true, trim: true },
+    processor: { type: String, required: true, trim: true },
+    os: { type: String, required: true, trim: true },
+    graphics: { type: String, required: true, trim: true },
+    screen: { type: String, trim: true },
     ram: { type: Number, required: true },
     storage: {
-      type: { type: String, required: true },
-      interface: { type: String },
+      type: { type: String, required: true, trim: true },
+      interface: { type: String, trim: true },
       size: { type: Number, required: true },
     },
     colors: [
       {
-        name: { type: String },
-        code: { type: String },
+        name: { type: String, trim: true },
+        code: { type: String, trim: true },
         qty: { type: Number, default: 0 },
       },
     ],
@@ -27,7 +27,7 @@ const computerSchema = mongoose.Schema(
       {
         imageUrl: { type: String },
         publicId: { type: String },
-        colorName: { type: String, default: "no" },
+        colorName: { type: String, default: "no", trim: true },
         isMain: { type: Boolean, default: false },
       },
     ],

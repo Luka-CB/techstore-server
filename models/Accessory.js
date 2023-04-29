@@ -3,14 +3,14 @@ const mongoosePaginate = require("mongoose-paginate-v2");
 
 const accessorySchema = mongoose.Schema(
   {
-    category: { type: String, required: true },
-    name: { type: String, required: true },
-    brand: { type: String, required: true },
+    category: { type: String, required: true, trim: true },
+    name: { type: String, required: true, trim: true },
+    brand: { type: String, required: true, trim: true },
     description: { type: String },
     colors: [
       {
-        name: { type: String },
-        code: { type: String },
+        name: { type: String, trim: true },
+        code: { type: String, trim: true },
         qty: { type: Number, default: 0 },
       },
     ],
@@ -18,7 +18,7 @@ const accessorySchema = mongoose.Schema(
       {
         imageUrl: { type: String },
         publicId: { type: String },
-        colorName: { type: String, default: "no" },
+        colorName: { type: String, default: "no", trim: true },
         isMain: { type: Boolean, default: false },
       },
     ],

@@ -3,29 +3,29 @@ const mongoosePaginate = require("mongoose-paginate-v2");
 
 const cellphoneSchema = mongoose.Schema(
   {
-    name: { type: String, required: true },
-    brand: { type: String, required: true },
+    name: { type: String, required: true, trim: true },
+    brand: { type: String, required: true, trim: true },
     year: { type: Number, required: true },
-    network: { type: String, required: true },
+    network: { type: String, required: true, trim: true },
     body: {
-      dimensions: { type: String, required: true },
-      weight: { type: String, required: true },
-      sim: { type: String, required: true },
+      dimensions: { type: String, required: true, trim: true },
+      weight: { type: String, required: true, trim: true },
+      sim: { type: String, required: true, trim: true },
     },
     display: {
-      type: { type: String, required: true },
+      type: { type: String, required: true, trim: true },
       size: { type: Number, required: true },
-      resolution: { type: String, required: true },
-      protection: { type: String, required: true },
+      resolution: { type: String, required: true, trim: true },
+      protection: { type: String, required: true, trim: true },
     },
     platform: {
-      os: { type: String, required: true },
-      chipset: { type: String, required: true },
-      cpu: { type: String, required: true },
-      gpu: { type: String, required: true },
+      os: { type: String, required: true, trim: true },
+      chipset: { type: String, required: true, trim: true },
+      cpu: { type: String, required: true, trim: true },
+      gpu: { type: String, required: true, trim: true },
     },
     memory: {
-      cardSlot: { type: String, required: true },
+      cardSlot: { type: String, required: true, trim: true },
       internal: { type: Number, required: true },
       ram: { type: Number, required: true },
     },
@@ -49,8 +49,8 @@ const cellphoneSchema = mongoose.Schema(
     price: { type: Number, required: true },
     colors: [
       {
-        name: { type: String },
-        code: { type: String },
+        name: { type: String, trim: true },
+        code: { type: String, trim: true },
         qty: { type: Number, default: 0 },
       },
     ],
@@ -58,7 +58,7 @@ const cellphoneSchema = mongoose.Schema(
       {
         imageUrl: { type: String },
         publicId: { type: String },
-        colorName: { type: String, default: "no" },
+        colorName: { type: String, default: "no", trim: true },
         isMain: { type: Boolean, default: false },
       },
     ],
