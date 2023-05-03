@@ -445,14 +445,14 @@ const editImageColorName = asyncHandler(async (req, res) => {
   const cellphone = await Cellphone.findById(productId);
 
   const colorExists = cellphone.colors.find(
-    (color) => color.name === colorName
+    (color) => color.name === colorName.toLowerCase()
   );
   if (colorName && !colorExists)
     throw new Error(`No Match Found for Color Name "${colorName}"!`);
 
   await Cellphone.updateOne(
     { _id: productId, "images._id": imageId },
-    { $set: { "images.$.colorName": colorName } }
+    { $set: { "images.$.colorName": colorName.toLowerCase() } }
   );
 
   res.status(200).json({
