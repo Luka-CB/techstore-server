@@ -200,15 +200,12 @@ const getOrdersAdmin = asyncHandler(async (req, res) => {
     .populate("author", "username")
     .select(
       "_id orderId author items totalPrice createdAt isPaid payDate isDelivered deliverDate"
-    );
+    )
+    .limit(rppn);
 
   const orderCount = await Order.countDocuments();
 
-  const num = rppn == 0 ? 20 : rppn;
-
-  const slicedOrders = orders.slice(0, num);
-
-  const modifiedOrders = slicedOrders.map((order) => {
+  const modifiedOrders = orders.map((order) => {
     const newDate = date.format(new Date(order.createdAt), "DD/MM/YYYY");
     const newPayDate = date.format(new Date(order.payDate), "DD/MM/YYYY");
     const newDeliverDate = date.format(
