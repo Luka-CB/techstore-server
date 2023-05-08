@@ -202,6 +202,8 @@ const getOrdersAdmin = asyncHandler(async (req, res) => {
       "_id orderId author items totalPrice createdAt isPaid payDate isDelivered deliverDate"
     );
 
+  const orderCount = await Order.countDocuments();
+
   const num = rppn == 0 ? 20 : rppn;
 
   const slicedOrders = orders.slice(0, num);
@@ -221,7 +223,7 @@ const getOrdersAdmin = asyncHandler(async (req, res) => {
     };
   });
 
-  res.status(200).json(modifiedOrders);
+  res.status(200).json({ orders: modifiedOrders, orderCount });
 });
 
 module.exports = {
