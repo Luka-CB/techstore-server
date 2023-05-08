@@ -203,7 +203,7 @@ const getOrdersAdmin = asyncHandler(async (req, res) => {
     )
     .limit(rppn);
 
-  const orderCount = await Order.countDocuments();
+  const orderCount = await Order.countDocuments({ isForAdmin: true });
 
   const modifiedOrders = orders.map((order) => {
     const newDate = date.format(new Date(order.createdAt), "DD/MM/YYYY");
