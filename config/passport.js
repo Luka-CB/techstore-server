@@ -12,7 +12,7 @@ passport.use(
       callbackURL:
         process.env.NODE_ENV === "development"
           ? "/api/users/login/google/callback"
-          : "https://techstore-server-production.up.railway.app/api/users/login/google/callback",
+          : "https://techstore-api-3jmr.onrender.com/api/users/login/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -43,7 +43,7 @@ passport.use(
       callbackURL:
         process.env.NODE_ENV === "development"
           ? "/api/users/login/facebook/callback"
-          : "https://techstore-server-production.up.railway.app/api/users/login/facebook/callback",
+          : "https://techstore-api-3jmr.onrender.com/api/users/login/facebook/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
